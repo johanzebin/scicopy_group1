@@ -1,4 +1,7 @@
-#from optparse import OptionParser
+"""
+asdsadasd
+"""
+from optparse import OptionParser
 
 def color_string(text="", color_str="yellow"):
     """
@@ -15,7 +18,23 @@ def color_string(text="", color_str="yellow"):
         raise ValueError(err_str)
     return "\033[0;%dm%s\033[0m" % (_colormap.get(color_str), text)
 
+
 if __name__ == "__main__":
-    pass
+    PARSER = OptionParser()
+    PARSER.add_option("-c", "--color", dest="colorize_output",
+                      default=False, action="store_true",
+                      help="Highlight the matching string in color.")
+    PARSER.add_option("-n", "--line-number", dest="print_line_number",
+                      default=False, action="store_true",
+                      help="Prefix output line with the line number.")
+    PARSER.add_option("-f", "--filenames", dest="print_filenames",
+                      default=False, action="store_true",
+                      help="Print filenames before occurence of PATTERN.")
+    PARSER.add_option("-R", "--recursive", dest="traverse_recursively",
+                      default=False, action="store_true",
+                      help="Read all files under each directory, recursively.")
+    PARSER.add_option("--version", dest="show_version_number",
+                      default=False, action="store_true",
+                      help="Prints author details and version number.")
 
-
+    (OPTIONS, ARGS) = PARSER.parse_args()
