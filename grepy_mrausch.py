@@ -73,7 +73,7 @@ def grepy(files,pattern,options):
                         prepend = prepend + str(linenumber+1) + ":"                        
                     # this is ugly, but currently I don't have an idea how to do it different
                     if options.color: # wrap some magic line chars for green color around the matched pattern
-                        print prepend + re.sub(pattern, "\033[92m"+pattern+"\033[0m", line.strip())
+                        print prepend + re.sub(match.group(0), "\033[92m"+match.group(0)+"\033[0m", line.strip())
                         # see also: http://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-python
                     else:
                         print prepend + line.strip() # simply print                                         
