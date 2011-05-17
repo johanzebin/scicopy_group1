@@ -46,25 +46,25 @@ def main():
         exit(0) # and quit
 
     pattern = args[0] # first argument is the regex pattern
-    #reg = re.compile(pattern)
+    reg = re.compile(pattern)
     files = args[1:] # all other arguments are filenames
     
-    grepy(files,pattern,options)
+    grepy(files,reg,options)
     
-def grepy(files,pattern,options):
+def grepy(files,reg,options):
     # iterate over the filenames
     for filename in files:
         if os.path.isdir(filename):
             if options.recursive:
                 # generate a list of subfiles, joining the current directory path and its sub-entries
                 subfiles = [os.path.join(filename,entry) for entry in os.listdir(filename)]
-                grepy(subfiles,pattern,options) # recurse over the files of the directory
+                grepy(subfiles,reg,options) # recurse over the files of the directory
             continue # ...skip the directory, either because we are done recursing, or we are not working recursive at all
        
         with open(filename) as infile: # file handles implement context manager for exceptions and stuff, see session 2 slide 21            
             lines = infile.readlines() # get all the lines. Yes, ALL the lines.
             for linenumber,line in enumerate(lines): # we want the line numbers too, see session 3 slide 29
-                match = re.search(pattern,line) # check if the line matches the pattern
+                match = reg.search(line) # check if the line matches the pattern
                 if match:
                     prepend = ""
                     if options.printfn:
