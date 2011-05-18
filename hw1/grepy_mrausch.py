@@ -5,7 +5,7 @@
 # mail: mrausch@uos.de
 # University of Osnabrueck
 # Homework 1 for the SciCoPy Course SS2011
- 
+
 import re, os, time
 from optparse import OptionParser
 
@@ -23,7 +23,7 @@ def main():
     # set usage info string and version string and create optparser
     usage = "%prog PATTERN FILE [FILE] [Options]"
     version = "%prog 0.1-mr"
-    desc = "Finds and outputs patterns in specified file(s)" 
+    desc = "Finds and outputs patterns in specified file(s)"
     parser = OptionParser(usage=usage, version=version, description=desc, add_help_option=False)
     # we suppress adding the help option to manually set it later
 
@@ -32,19 +32,19 @@ def main():
     # by default, optparse puts this at the top of the option list, which is ugly
     parser.set_conflict_handler(handler="resolve")
 
-    parser.add_option("-c", "--color", action="store_true", dest="color",\
+    parser.add_option("-c", "--color", action="store_true", dest="color", \
                        help="Highlight pattern matches with color")
     # define the custom help switch
     parser.add_option("-h", "-?", "--help", action="help", help="Display this help page")
-    parser.add_option("-n", "--line-numbers", action="store_true", dest="println",\
+    parser.add_option("-n", "--line-numbers", action="store_true", dest="println", \
                        help="Print line-numbers of matches")
-    parser.add_option("-f", "--filenames", action="store_true", dest="printfn",\
+    parser.add_option("-f", "--filenames", action="store_true", dest="printfn", \
                        help="Print file names before matches")
-    parser.add_option("-R", "--recursive", action="store_true", dest="recursive",\
+    parser.add_option("-R", "--recursive", action="store_true", dest="recursive", \
                        help="Recursively process directories in the file list")
-    parser.add_option("-v", "--version", action="version",\
+    parser.add_option("-v", "--version", action="version", \
                        help="Show author and version information and exit.")
-    parser.add_option("-t", "--time", action="store_true", dest="time",\
+    parser.add_option("-t", "--time", action="store_true", dest="time", \
                        help="Print out the processing time at the end of script run")
 
     # get options and arguments from argv
@@ -60,11 +60,11 @@ def main():
     files = args[1:] # all other arguments are filenames
 
     # Everything's set up, so start working
-    grepy(files,reg,options)
+    grepy(files, reg, options)
 
     if options.time:
         end_time = time.clock()
-        print "Script run took "+str(end_time - start_time)+ "s."
+        print "Script run took " + str(end_time - start_time) + "s."
 
 # Taken from:
 # http://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python/3002505#3002505
@@ -89,18 +89,18 @@ def is_binary(filename):
 
     return False
 
-def grepy(files,reg,options):
+def grepy(files, reg, options):
     # iterate over the filenames
     for filename in files:
         try:
             if is_binary(filename):
-                print filename+" is a binary file. Skipping file."
+                print filename + " is a binary file. Skipping file."
             if os.path.isdir(filename):
                 if options.recursive:
                     # generate a list of subfiles, joining the current directory path and its sub-entries
-                    subfiles = [os.path.join(filename,entry) for entry in os.listdir(filename)]
+                    subfiles = [os.path.join(filename, entry) for entry in os.listdir(filename)]
                     # recurse over the files of the directory
-                    grepy(subfiles,reg,options) 
+                    grepy(subfiles, reg, options)
                 # ...skip the directory, either because we are done recursing,
                 # or we are not working recursive at all
                 continue
@@ -112,7 +112,7 @@ def grepy(files,reg,options):
                 # lines in advance
                 lines = infile.readlines()
                 # we want the line numbers too, see session 3 slide 29
-                for linenumber,line in enumerate(lines):
+                for linenumber, line in enumerate(lines):
                     # check if the line matches the pattern 
                     match = reg.search(line)
                     if match:
@@ -120,11 +120,11 @@ def grepy(files,reg,options):
                         if options.printfn:
                             prepend = filename + ":"
                         if options.println:
-                            prepend = prepend + str(linenumber+1) + ":"
+                            prepend = prepend + str(linenumber + 1) + ":"
                         if options.color:
                             # wrap some magic line chars for green color around the matched pattern see also:
                             # http://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-python
-                            print prepend + re.sub(match.group(0), "\033[92m"+match.group(0)+"\033[0m", line.rstrip())
+                            print prepend + re.sub(match.group(0), "\033[92m" + match.group(0) + "\033[0m", line.rstrip())
                         else:
                             # always strip away line breaks at the end of lines
                             print prepend + line.rstrip()
@@ -133,6 +133,6 @@ def grepy(files,reg,options):
         # If something goes wrong with a file, simply skip it
         # and print an error
         except IOError:
-            print filename+": Error opening file. Skipping file."
+            print filename + ": Error opening file. Skipping file."
 
 if __name__ == '__main__': main()
