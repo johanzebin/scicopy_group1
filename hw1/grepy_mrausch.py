@@ -92,14 +92,13 @@ def is_binary(filename):
 def grepy(files, reg, options):
     # iterate over the filenames
     for filename in files:
-        # check if a file or directory really exists
-        if not os.path.exists(filename):
-            print filename + ": No such file or directory"
-            continue
-
         try:
-            if is_binary(filename):
-                print filename + " is a binary file. Skipping file."
+            # check if a file or directory really exists
+            if not os.path.exists(filename):
+                print filename + ": No such file or directory"
+                continue
+
+            # check if the file is a directory            
             if os.path.isdir(filename):
                 if options.recursive:
                     # generate a list of subfiles, joining the current directory path and its sub-entries
@@ -107,10 +106,17 @@ def grepy(files, reg, options):
                     # recurse over the files of the directory
                     grepy(subfiles, reg, options)
                 # ...skip the directory, either because we are done recursing,
-                # or we are not working recursive at all
+                # or we are not working recursively at all
                 continue
-            # file handles implement context manager for exceptions and stuff
-            # see session 2 slide 21 (on with statements)
+
+            # skip binary files
+            if is_binary(filename):
+                print filename + ": Skipping binary file."
+                continue
+
+            # File handles do implement context manager for automatically
+            # closing file handles.
+            # See session 2 slide 21 (on with statements)
             with open(filename) as infile:
                 # get all the lines. Yes, ALL the lines. Might be more convenient
                 # to read lines one by one, but the former way allows us to enumerate
@@ -141,3 +147,4 @@ def grepy(files, reg, options):
             print filename + ": Error opening file. Skipping file."
 
 if __name__ == '__main__': main()
+
