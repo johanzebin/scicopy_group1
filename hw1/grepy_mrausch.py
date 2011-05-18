@@ -92,6 +92,11 @@ def is_binary(filename):
 def grepy(files, reg, options):
     # iterate over the filenames
     for filename in files:
+        # check if a file or directory really exists
+        if not os.path.exists(filename):
+            print filename + ": No such file or directory"
+            continue
+
         try:
             if is_binary(filename):
                 print filename + " is a binary file. Skipping file."
