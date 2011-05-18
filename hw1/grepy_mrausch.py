@@ -5,6 +5,7 @@
 # mail: mrausch@uos.de
 # University of Osnabrueck
 # Homework 1 for the SciCoPy Course SS2011
+# Authors: Michael Rausch 
 
 import re, os, time
 from optparse import OptionParser
@@ -147,4 +148,3 @@ def grepy(files, reg, options):
             print filename + ": Error opening file. Skipping file."
 
 if __name__ == '__main__': main()
-
