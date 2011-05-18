@@ -15,7 +15,7 @@ def main():
     # Command line args:
     # -c --color: print matches in color
     # -h -? --help: print help (automatic optparse?). also print this with no args
-    # -n --line-number: prefix output lines with linenumber
+    # -n --line-number: prefix output lines with linenumberh
     # -f --filenames: print filenames before occurences
     # -R --recursive: recursively process directories
     # -v: Print author details and version number
@@ -64,7 +64,7 @@ def main():
 
     if options.time:
         end_time = time.time()
-        print "Script run took " + str(end_time - start_time) + "s."
+        print "Script run took %.3f sec" %(end_time - start_time)
 
 # Taken from:
 # http://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python/3002505#3002505
