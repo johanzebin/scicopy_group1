@@ -19,7 +19,7 @@ def main():
     # -f --filenames: print filenames before occurences
     # -R --recursive: recursively process directories
     # -v: Print author details and version number
-    start_time = time.clock()
+    start_time = time.time()
     # set usage info string and version string and create optparser
     usage = "%prog PATTERN FILE [FILE] [Options]"
     version = "%prog 0.1-mr"
@@ -63,7 +63,7 @@ def main():
     grepy(files, reg, options)
 
     if options.time:
-        end_time = time.clock()
+        end_time = time.time()
         print "Script run took " + str(end_time - start_time) + "s."
 
 # Taken from:
