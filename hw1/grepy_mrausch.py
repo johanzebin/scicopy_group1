@@ -19,7 +19,7 @@ def main():
     # -f --filenames: print filenames before occurences
     # -R --recursive: recursively process directories
     # -v: Print author details and version number
-    start_time = time.clock()    
+    start_time = time.clock()
     # set usage info string and version string and create optparser
     usage = "%prog PATTERN FILE [FILE] [Options]"
     version = "%prog 0.1-mr"
@@ -49,7 +49,7 @@ def main():
 
     # get options and arguments from argv
     (options, args) = parser.parse_args()
-     
+
     # print usage information if no or too less arguments are supplied
     if len(args) < 2:
         parser.print_help()
@@ -58,10 +58,10 @@ def main():
     pattern = args[0] # first argument is the regex pattern
     reg = re.compile(pattern) # precompile the pattern (more efficient)
     files = args[1:] # all other arguments are filenames
-    
+
     # Everything's set up, so start working
     grepy(files,reg,options)
-    
+
     if options.time:
         end_time = time.clock()
         print "Script run took "+str(end_time - start_time)+ "s."
@@ -87,8 +87,8 @@ def is_binary(filename):
     finally:
         fin.close()
 
-    return False        
-    
+    return False
+
 def grepy(files,reg,options):
     # iterate over the filenames
     for filename in files:
@@ -109,7 +109,7 @@ def grepy(files,reg,options):
             with open(filename) as infile:
                 # get all the lines. Yes, ALL the lines. Might be more convenient
                 # to read lines one by one, but the former way allows us to enumerate
-                # lines in advance                         
+                # lines in advance
                 lines = infile.readlines()
                 # we want the line numbers too, see session 3 slide 29
                 for linenumber,line in enumerate(lines):
@@ -120,11 +120,11 @@ def grepy(files,reg,options):
                         if options.printfn:
                             prepend = filename + ":"
                         if options.println:
-                            prepend = prepend + str(linenumber+1) + ":"                    
+                            prepend = prepend + str(linenumber+1) + ":"
                         if options.color:
                             # wrap some magic line chars for green color around the matched pattern see also:
                             # http://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-python
-                            print prepend + re.sub(match.group(0), "\033[92m"+match.group(0)+"\033[0m", line.rstrip())                        
+                            print prepend + re.sub(match.group(0), "\033[92m"+match.group(0)+"\033[0m", line.rstrip())
                         else:
                             # always strip away line breaks at the end of lines
                             print prepend + line.rstrip()
@@ -134,5 +134,5 @@ def grepy(files,reg,options):
         # and print an error
         except IOError:
             print filename+": Error opening file. Skipping file."
-                    
+
 if __name__ == '__main__': main()
