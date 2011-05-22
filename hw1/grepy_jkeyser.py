@@ -11,7 +11,7 @@ import os
 import sys
 import re
 
-def _color_string(text="", color_str="yellow"):
+def colorize_string(text="", color_str="yellow"):
     """
     Adds ANSI escape codes to the string 'text' according to a few color
     names handed over as strings in 'color_str'. When printed, the modified
@@ -86,10 +86,10 @@ def _setup_grepy_parser():
                       help="do not ignore binary files")
     return parser
 
-def _create_file_paths(arglist, recursively=False, ignore_bins=True):
+def create_file_paths(arglist, recursively=False, ignore_bins=True):
     """
-    Generates the complete list of files based on 'arglist',
-    optionally traversing the directory tree recursively.
+    Generates a complete list of files based on 'arglist', optionally
+    traversing the directory tree recursively.
     Symbolic links and non-readable files are silently ignored.
     Binary files may be included into list with 'ignore_bins'.
     """
@@ -112,7 +112,7 @@ def _create_file_paths(arglist, recursively=False, ignore_bins=True):
         filepaths = [flpth for flpth in filepaths if is_textfile(flpth)]
     return filepaths
 
-def grep_core_function(pattern, filepaths, options):
+def _grep_core(pattern, filepaths, options):
     """
     Finds occurences of 'pattern' in all files in 'filepaths',
     and prints them to stdout according to 'options'.
@@ -133,7 +133,7 @@ def grep_core_function(pattern, filepaths, options):
                 if options.print_line_number:
                     out_str += "%d:" % line_num
                 if options.colorize_output:
-                    line = line.replace(match, _color_string(match, "red"))
+                    line = line.replace(match, colorize_string(match, "red"))
                 out_str += line.rstrip()
                 print out_str
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         GREPY_PARSER.print_help()
         sys.exit(2)
     # get FILE(s) while ignoring symbolic links
-    FILEPATHS = _create_file_paths(ARGS[1:], OPTIONS.traverse_recursively,
+    FILEPATHS = create_file_paths(ARGS[1:], OPTIONS.traverse_recursively,
                                    OPTIONS.ignore_binary_files)
     # in every file, search for PATTERN in each line & print it
-    grep_core_function(ARGS[0], FILEPATHS, OPTIONS)
+    _grep_core(ARGS[0], FILEPATHS, OPTIONS)
