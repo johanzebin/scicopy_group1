@@ -11,6 +11,7 @@ from optparse import OptionParser
 import os
 import sys
 import re
+import string
 
 def _color_string(text="", color_str="yellow"):
     """
@@ -83,6 +84,9 @@ if __name__ == "__main__":
     RE_PATTERN = re.compile(PATTERN)
     for flpth in FILEPATHS:
         with open(flpth, 'r') as fl:
+            # stupid detection of binary files: non-printing char in 1st line?
+            if [char for char in fl.readline() if not char in string.printable]:
+                continue
             for lnum, line in enumerate(fl, start=1):
                 M_OBJ = RE_PATTERN.search(line)
                 if not M_OBJ:
