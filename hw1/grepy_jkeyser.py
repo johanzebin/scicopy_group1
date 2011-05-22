@@ -3,7 +3,7 @@
 #
 
 """
-grepy implements some core functionality of the UNIX grep command.
+grepy implements some core functionality of the *nix grep command.
 @author: Johannes Keyser (jkeyser@uos.de)
 """
 
@@ -55,7 +55,7 @@ def _create_file_paths(arglist, recursively=False):
     """
     Generates the complete list of files based on the argument list,
     optionally traversing the directory tree recursively.
-    Symbolic links are silently ignored.
+    Symbolic links are silently ignored, binary files are NOT sorted out.
     """
     nolinks  = [arg for arg in arglist if not os.path.islink(arg)]
     argfiles = [arg for arg in nolinks if os.path.isfile(arg)]
@@ -70,6 +70,34 @@ def _create_file_paths(arglist, recursively=False):
                                   if not os.path.islink(fil)])
     return filepaths
 
+def grep_core_function(pattern, filepaths, options):
+    """
+    Finds occurences of 'pattern' in all files in 'filepaths',
+    and prints them to stdout according to 'options'.
+    Tries to silently ignore non-text files.
+    """
+    re_pattern = re.compile(pattern)
+    for flpth in filepaths:
+        with open(flpth, 'r') as fl:
+            # naive detection of binary files: non-printing char in 1st "line"?
+            if [char for char in fl.readline() if not char in string.printable]:
+                continue
+            for lnum, line in enumerate(fl, start=1):
+                m_obj = re_pattern.search(line)
+                if not m_obj: # no match found: get next line!
+                    continue
+                match = m_obj.group()
+                # prepare output format according to options
+                out_str = ""
+                if options.print_filenames:
+                    out_str += "%s:" % flpth
+                if options.print_line_number:
+                    out_str += "%d:" % lnum
+                if options.colorize_output:
+                     line = line.replace(match, _color_string(match, "red"))
+                out_str += line.rstrip()
+                print out_str
+
 if __name__ == "__main__":
     GREPY_PARSER    = _setup_grepy_parser()
     (OPTIONS, ARGS) = GREPY_PARSER.parse_args()
@@ -77,28 +105,7 @@ if __name__ == "__main__":
     if len(ARGS) < 2:
         GREPY_PARSER.print_help()
         sys.exit(2)
-    # pick out PATTERN and FILE(s) while ignoring symbolic links
-    PATTERN   = ARGS[0]
+    # get FILE(s) while ignoring symbolic links
     FILEPATHS = _create_file_paths(ARGS[1:], OPTIONS.traverse_recursively)
-    # find occurences of PATTERN in all files in the list & print them
-    RE_PATTERN = re.compile(PATTERN)
-    for flpth in FILEPATHS:
-        with open(flpth, 'r') as fl:
-            # stupid detection of binary files: non-printing char in 1st line?
-            if [char for char in fl.readline() if not char in string.printable]:
-                continue
-            for lnum, line in enumerate(fl, start=1):
-                M_OBJ = RE_PATTERN.search(line)
-                if not M_OBJ:
-                    continue
-                MATCH = M_OBJ.group()
-                # prepare output format according to options
-                OUT_STR = ""
-                if OPTIONS.print_filenames:
-                    OUT_STR += "%s:" % flpth
-                if OPTIONS.print_line_number:
-                    OUT_STR += "%d:" % lnum
-                if OPTIONS.colorize_output:
-                     line = line.replace(MATCH, _color_string(MATCH, "red"))
-                OUT_STR += line.rstrip()
-                print OUT_STR
+    # in every file, search for PATTERN in each line & print it
+    grep_core_function(ARGS[0], FILEPATHS, OPTIONS)
