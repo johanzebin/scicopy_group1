@@ -34,7 +34,7 @@ def is_textfile(filepath, checklength=10*1024, max_chunk=1024**2):
     If 'checklength' is negative, at most 'max_chunk' bytes are read at a time
     until the entire file is read.
     """
-    # ensure sensible maximal amount of bytes to read at a time
+    # ensure a sensible maximal amount of bytes to be read in one go
     if checklength > 0 and checklength < max_chunk:
         chunk_size = checklength
     else:
@@ -42,7 +42,7 @@ def is_textfile(filepath, checklength=10*1024, max_chunk=1024**2):
     already_read_bytes = 0
     with open(filepath, 'rb') as fil:
         while True:
-            chunk           = fil.read(chunk_size)
+            chunk = fil.read(chunk_size)
             already_read_bytes += len(chunk)
             # assume non-text files don't contain 0-bytes
             if '\x00' in chunk:
