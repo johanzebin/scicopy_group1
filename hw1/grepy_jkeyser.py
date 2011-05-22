@@ -114,7 +114,7 @@ def _setup_grepy_parser():
 
 def _grep_core(re_pattern, filepaths, options):
     """
-    Finds occurences of 'pattern' in all files in 'filepaths',
+    Finds occurences of 're_pattern' in all files in 'filepaths',
     and prints them to stdout according to 'options'.
     Tries to silently ignore non-text files.
     """
