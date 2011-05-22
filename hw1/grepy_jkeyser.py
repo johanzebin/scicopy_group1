@@ -10,7 +10,6 @@ from optparse import OptionParser
 import os
 import sys
 import re
-import string
 
 def _color_string(text="", color_str="yellow"):
     """
@@ -22,7 +21,7 @@ def _color_string(text="", color_str="yellow"):
     _colormap = {'black':30, 'blue':34, 'yellow':33, 'cyan':36, 'green':32,
                  'magenta':35, 'red':31, 'white':37}
     if color_str not in _colormap.keys():
-        err_str = "No such color option! Possible values: %s" %\
+        err_str = "No such color option! Possible values: %s" % \
             _colormap.keys().__str__()
         raise ValueError(err_str)
     return "\033[0;%dm%s\033[0m" % (_colormap.get(color_str), text)
@@ -94,6 +93,7 @@ def _create_file_paths(arglist, recursively=False, ignore_bins=True):
     Symbolic links and non-readable files are silently ignored.
     Binary files may be included into list with 'ignore_bins'.
     """
+    # filter out links and non-readable files
     nobogus  = [arg for arg in arglist if not os.path.islink(arg)\
                                           and os.access(arg, os.R_OK)]
     argfiles = [arg for arg in nobogus if os.path.isfile(arg)]
@@ -106,8 +106,8 @@ def _create_file_paths(arglist, recursively=False, ignore_bins=True):
                 # extend file list with all non-link files which are readable
                 filepaths.extend([os.path.join(path, fil) for fil in files])
         # filter out links and non-readable files
-        filepaths = [flpth for flpth in filepaths if not os.path.islink(flpth)\
-                                                     and os.access(flpth, os.R_OK)]
+        filepaths = [flpth for flpth in filepaths\
+                    if not os.path.islink(flpth) and os.access(flpth, os.R_OK)]
     if ignore_bins:
         filepaths = [flpth for flpth in filepaths if is_textfile(flpth)]
     return filepaths
