@@ -50,6 +50,25 @@ def _setup_grepy_parser():
                       help="Read all files under each directory, recursively.")
     return parser
 
+def _create_file_paths(arglist, recursively=False):
+    """
+    Generates the complete list of files based on the argument list,
+    optionally traversing the directory tree recursively.
+    Symbolic links are silently ignored.
+    """
+    nolinks  = [arg for arg in arglist if not os.path.islink(arg)]
+    argfiles = [arg for arg in nolinks if os.path.isfile(arg)]
+    argdirs  = [arg for arg in nolinks if os.path.isdir(arg)]
+    # generate a list of all files, while ignoring links
+    filepaths = argfiles # start with explicitely stated files (dirs)
+    if recursively:
+        for folder in argdirs:
+            for path, _, files in os.walk(folder, topdown=False):
+                # extend file list with all non-link files
+                filepaths.extend([os.path.join(path, fil) for fil in files \
+                                  if not os.path.islink(fil)])
+    return filepaths
+
 if __name__ == "__main__":
     GREPY_PARSER    = _setup_grepy_parser()
     (OPTIONS, ARGS) = GREPY_PARSER.parse_args()
@@ -57,32 +76,25 @@ if __name__ == "__main__":
     if len(ARGS) < 2:
         GREPY_PARSER.print_help()
         sys.exit(2)
-    # pick out PATTERN, FILE(s) and directories, while ignoring (symbolic) links
-    PATTERN  = ARGS[0]
-    NOLINKS  = [arg for arg in ARGS[1:] if not os.path.islink(arg)]
-    ARGFILES = [arg for arg in NOLINKS  if os.path.isfile(arg)]
-    ARGDIRS  = [arg for arg in NOLINKS  if os.path.isdir(arg)]
-    # generate a list of all files to search for PATTERN, while ignoring links
-    FILEPATHS = ARGFILES # start with explicitely stated files
-    if OPTIONS.traverse_recursively:
-        for folder in ARGDIRS:
-            for path, _, files in os.walk(folder, topdown=False):
-                # extend file list with all non-link files
-                FILEPATHS.extend([os.path.join(path, fl) for fl in files \
-                                  if not os.path.islink(fl)])
-    #print FILEPATHS
+    # pick out PATTERN and FILE(s) while ignoring symbolic links
+    PATTERN   = ARGS[0]
+    FILEPATHS = _create_file_paths(ARGS[1:], OPTIONS.traverse_recursively)
     # find occurences of PATTERN in all files in the list & print them
     RE_PATTERN = re.compile(PATTERN)
     for flpth in FILEPATHS:
         with open(flpth, 'r') as fl:
             for lnum, line in enumerate(fl, start=1):
-                MATCHES = RE_PATTERN.findall(line)
-                if not MATCHES:
+                M_OBJ = RE_PATTERN.search(line)
+                if not M_OBJ:
                     continue
-                #print MATCHES
+                MATCH = M_OBJ.group()
                 # prepare output format according to options
                 OUT_STR = ""
                 if OPTIONS.print_filenames:
-                    pass
+                    OUT_STR += "%s:" % flpth
                 if OPTIONS.print_line_number:
-                    pass
+                    OUT_STR += "%d:" % lnum
+                if OPTIONS.colorize_output:
+                     line = line.replace(MATCH, _color_string(MATCH, "red"))
+                OUT_STR += line.rstrip()
+                print OUT_STR
