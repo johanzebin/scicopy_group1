@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 grepy implements some core functionality of the *nix grep command.
-   @author: Johannes Keyser (jkeyser@uos.de)
-@attention: SCICOPY homework 1
+SCICOPY SS11, homework 1
+Authors: group01, i.e. mrausch, jkeyser, shennig, sfleck
 """
 
 from optparse import OptionParser
