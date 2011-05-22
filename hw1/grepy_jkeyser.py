@@ -55,6 +55,32 @@ def is_textfile(filepath, checklength=10*1024, max_chunk=1024**2):
                 return True
     return False
 
+def create_file_paths(arglist, recursively=False, ignore_bins=True):
+    """
+    Generates a complete list of files based on 'arglist', optionally
+    traversing the directory tree recursively.
+    Symbolic links and non-readable files are silently ignored.
+    Binary files may be included into list with 'ignore_bins'.
+    """
+    # filter out links and non-readable files
+    nobogus  = [arg for arg in arglist if not os.path.islink(arg)\
+                                          and os.access(arg, os.R_OK)]
+    argfiles = [arg for arg in nobogus if os.path.isfile(arg)]
+    argdirs  = [arg for arg in nobogus if os.path.isdir(arg)]
+    # generate a list of all files, while ignoring links and non-readable files
+    filepaths = argfiles # start with explicitely stated files (dirs)
+    if recursively:
+        for folder in argdirs:
+            for path, _, files in os.walk(folder, topdown=False):
+                # extend file list with all non-link files which are readable
+                filepaths.extend([os.path.join(path, fil) for fil in files])
+        # filter out links and non-readable files
+        filepaths = [flpth for flpth in filepaths\
+                    if not os.path.islink(flpth) and os.access(flpth, os.R_OK)]
+    if ignore_bins:
+        filepaths = [flpth for flpth in filepaths if is_textfile(flpth)]
+    return filepaths
+
 def _setup_grepy_parser():
     """
     Sets up an optparse-command line parser specific for grepy.
@@ -85,32 +111,6 @@ def _setup_grepy_parser():
                       default=True, action="store_false",
                       help="do not ignore binary files")
     return parser
-
-def create_file_paths(arglist, recursively=False, ignore_bins=True):
-    """
-    Generates a complete list of files based on 'arglist', optionally
-    traversing the directory tree recursively.
-    Symbolic links and non-readable files are silently ignored.
-    Binary files may be included into list with 'ignore_bins'.
-    """
-    # filter out links and non-readable files
-    nobogus  = [arg for arg in arglist if not os.path.islink(arg)\
-                                          and os.access(arg, os.R_OK)]
-    argfiles = [arg for arg in nobogus if os.path.isfile(arg)]
-    argdirs  = [arg for arg in nobogus if os.path.isdir(arg)]
-    # generate a list of all files, while ignoring links and non-readable files
-    filepaths = argfiles # start with explicitely stated files (dirs)
-    if recursively:
-        for folder in argdirs:
-            for path, _, files in os.walk(folder, topdown=False):
-                # extend file list with all non-link files which are readable
-                filepaths.extend([os.path.join(path, fil) for fil in files])
-        # filter out links and non-readable files
-        filepaths = [flpth for flpth in filepaths\
-                    if not os.path.islink(flpth) and os.access(flpth, os.R_OK)]
-    if ignore_bins:
-        filepaths = [flpth for flpth in filepaths if is_textfile(flpth)]
-    return filepaths
 
 def _grep_core(pattern, filepaths, options):
     """
