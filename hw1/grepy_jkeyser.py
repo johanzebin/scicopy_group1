@@ -112,13 +112,12 @@ def _setup_grepy_parser():
                       help="do not ignore binary files")
     return parser
 
-def _grep_core(pattern, filepaths, options):
+def _grep_core(re_pattern, filepaths, options):
     """
     Finds occurences of 'pattern' in all files in 'filepaths',
     and prints them to stdout according to 'options'.
     Tries to silently ignore non-text files.
     """
-    re_pattern = re.compile(pattern)
     for flpth in filepaths:
         with open(flpth, 'r') as fil:
             for line_num, line in enumerate(fil, start=1):
@@ -144,8 +143,14 @@ if __name__ == "__main__":
     if len(ARGS) < 2:
         GREPY_PARSER.print_help()
         sys.exit(2)
+    # reject on malformed regex
+    try:
+        RE_PATTERN = re.compile(ARGS[0])
+    except:
+        print "Error: '%s' is an invalid regular expression." % ARGS[0]
+        sys.exit(2)
     # get FILE(s) while ignoring symbolic links
     FILEPATHS = create_file_paths(ARGS[1:], OPTIONS.traverse_recursively,
                                    OPTIONS.ignore_binary_files)
     # in every file, search for PATTERN in each line & print it
-    _grep_core(ARGS[0], FILEPATHS, OPTIONS)
+    _grep_core(RE_PATTERN, FILEPATHS, OPTIONS)
