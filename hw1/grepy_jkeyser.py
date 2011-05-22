@@ -78,11 +78,11 @@ def grep_core_function(pattern, filepaths, options):
     """
     re_pattern = re.compile(pattern)
     for flpth in filepaths:
-        with open(flpth, 'r') as fl:
+        with open(flpth, 'r') as fil:
             # naive detection of binary files: non-printing char in 1st "line"?
-            if [char for char in fl.readline() if not char in string.printable]:
+            if [ch for ch in fil.readline() if not ch in string.printable]:
                 continue
-            for lnum, line in enumerate(fl, start=1):
+            for lnum, line in enumerate(fil, start=1):
                 m_obj = re_pattern.search(line)
                 if not m_obj: # no match found: get next line!
                     continue
@@ -94,7 +94,7 @@ def grep_core_function(pattern, filepaths, options):
                 if options.print_line_number:
                     out_str += "%d:" % lnum
                 if options.colorize_output:
-                     line = line.replace(match, _color_string(match, "red"))
+                    line = line.replace(match, _color_string(match, "red"))
                 out_str += line.rstrip()
                 print out_str
 
