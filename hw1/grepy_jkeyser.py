@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-
 """
 grepy implements some core functionality of the *nix grep command.
 @author: Johannes Keyser (jkeyser@uos.de)
